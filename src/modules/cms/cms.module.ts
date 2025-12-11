@@ -14,6 +14,7 @@ import { Setting } from './entities/setting.entity';
 import { Menu } from './entities/menu.entity';
 import { ContactSubmission } from './entities/contact-submission.entity';
 import { EventRegistration } from './entities/event-registration.entity';
+import { AboutPage } from './entities/about-page.entity';
 import { User } from '../users/entities/user.entity';
 
 // Services
@@ -26,6 +27,8 @@ import { ContactService } from './services/contact.service';
 import { EventService } from './services/event.service';
 import { ProjectService } from './services/project.service';
 import { EventRegistrationService } from './services/event-registration.service';
+import { AboutPageService } from './services/about-page.service';
+import { TeamMemberService } from './services/team-member.service';
 
 // Controllers
 import { HeroSliderController } from './controllers/hero-slider.controller';
@@ -36,6 +39,8 @@ import { SettingController } from './controllers/setting.controller';
 import { ContactController } from './controllers/contact.controller';
 import { EventController } from './controllers/event.controller';
 import { ProjectController } from './controllers/project.controller';
+import { AboutPageController } from './controllers/about-page.controller';
+import { TeamMemberController } from './controllers/team-member.controller';
 
 @Module({
   imports: [
@@ -52,6 +57,7 @@ import { ProjectController } from './controllers/project.controller';
       Menu,
       ContactSubmission,
       EventRegistration,
+      AboutPage,
       User,
     ]),
   ],
@@ -64,6 +70,8 @@ import { ProjectController } from './controllers/project.controller';
     ContactController,
     EventController,
     ProjectController,
+    AboutPageController,
+    TeamMemberController,
   ],
   providers: [
     HeroSliderService,
@@ -75,6 +83,8 @@ import { ProjectController } from './controllers/project.controller';
     EventService,
     ProjectService,
     EventRegistrationService,
+    AboutPageService,
+    TeamMemberService,
   ],
   exports: [
     HeroSliderService,
@@ -86,6 +96,8 @@ import { ProjectController } from './controllers/project.controller';
     EventService,
     ProjectService,
     EventRegistrationService,
+    AboutPageService,
+    TeamMemberService,
   ],
 })
 export class CmsModule {}

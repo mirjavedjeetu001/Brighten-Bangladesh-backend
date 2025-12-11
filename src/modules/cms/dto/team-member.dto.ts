@@ -1,47 +1,28 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt, IsEmail, IsObject, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, IsObject, MaxLength, IsNumber } from 'class-validator';
 
 export class CreateTeamMemberDto {
-  @ApiProperty()
+  @ApiProperty({ description: 'User ID from approved users' })
+  @IsNumber()
+  user_id: number;
+
+  @ApiProperty({ description: 'Role/position in the organization', example: 'Founder' })
   @IsString()
   @MaxLength(255)
-  name: string;
+  role: string;
 
-  @ApiProperty()
-  @IsString()
-  @MaxLength(255)
-  position: string;
-
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Category/department', example: 'Leadership' })
   @IsOptional()
   @IsString()
   @MaxLength(255)
-  department?: string;
+  category?: string;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Description of contributions' })
   @IsOptional()
   @IsString()
-  bio?: string;
+  contributions?: string;
 
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(255)
-  photo?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsEmail()
-  @MaxLength(255)
-  email?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  phone?: string;
-
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Social media links' })
   @IsOptional()
   @IsObject()
   social_links?: Record<string, string>;
@@ -57,4 +38,41 @@ export class CreateTeamMemberDto {
   is_active?: boolean;
 }
 
-export class UpdateTeamMemberDto extends CreateTeamMemberDto {}
+export class UpdateTeamMemberDto {
+  @ApiPropertyOptional({ description: 'Role/position in the organization' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  role?: string;
+
+  @ApiPropertyOptional({ description: 'Category/department' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  category?: string;
+
+  @ApiPropertyOptional({ description: 'Description of contributions' })
+  @IsOptional()
+  @IsString()
+  contributions?: string;
+
+  @ApiPropertyOptional({ description: 'Social media links' })
+  @IsOptional()
+  @IsObject()
+  social_links?: Record<string, string>;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsInt()
+  display_order?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  is_active?: boolean;
+}
+
+export class ReorderTeamMembersDto {
+  @ApiProperty({ type: [Number], description: 'Array of team member IDs in desired order' })
+  order: number[];
+}

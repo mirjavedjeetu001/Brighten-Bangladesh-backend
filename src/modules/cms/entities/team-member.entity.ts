@@ -1,30 +1,26 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('team_members')
 export class TeamMember {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  name: string;
+  @Column({ type: 'bigint' })
+  user_id: number;
+
+  @ManyToOne(() => User, { eager: true })
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column({ type: 'varchar', length: 255 })
-  position: string;
+  role: string; // e.g., 'Founder', 'Admin', 'Content Manager', 'Volunteer Coordinator'
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  department: string;
+  category: string; // e.g., 'Leadership', 'Operations', 'Content', 'Community'
 
   @Column({ type: 'text', nullable: true })
-  bio: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  photo: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  email: string;
-
-  @Column({ type: 'varchar', length: 50, nullable: true })
-  phone: string;
+  contributions: string; // Description of their contributions
 
   @Column({ type: 'json', nullable: true })
   social_links: Record<string, string>;
