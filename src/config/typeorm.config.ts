@@ -14,6 +14,18 @@ export const dataSourceOptions: DataSourceOptions = {
   migrations: ['dist/database/migrations/*{.ts,.js}'],
   synchronize: false,
   logging: process.env.NODE_ENV === 'development',
+  // Connection pool settings for shared hosting
+  extra: {
+    connectionLimit: 5, // Limit concurrent connections
+    connectTimeout: 60000, // 60 seconds
+    acquireTimeout: 60000,
+    timeout: 60000,
+    waitForConnections: true,
+    queueLimit: 0,
+  },
+  // Auto-reconnect settings
+  maxQueryExecutionTime: 30000, // 30 seconds
+  poolSize: 5,
 };
 
 const dataSource = new DataSource(dataSourceOptions);

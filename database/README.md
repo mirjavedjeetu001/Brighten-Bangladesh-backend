@@ -1,6 +1,115 @@
-# Database Migrations
+# Database Setup Guide
 
-This folder contains SQL migration files for the Brighten Bangladesh database.
+This folder contains database files for the Brighten Bangladesh project.
+
+---
+
+## 🚀 Quick Start - Production Deployment
+
+**For cPanel deployment (NO SSH):**
+
+1. **Use this file for production:**
+   - `COMPLETE_PRODUCTION_DATABASE.sql` ✅
+   - This is the ONLY file you need to import!
+   - Contains all tables, structure, and initial data
+
+2. **Import via phpMyAdmin:**
+   - Login to cPanel → phpMyAdmin
+   - Select your database
+   - Click "Import" → Choose file
+   - Import `COMPLETE_PRODUCTION_DATABASE.sql`
+   - Done! ✅
+
+3. **Default Admin Login:**
+   - Email: `admin@brightenbangladesh.org`
+   - Password: `Admin@12345`
+   - ⚠️ **CHANGE IMMEDIATELY AFTER LOGIN!**
+
+---
+
+## 📁 Files in This Folder
+
+### Production Files
+
+- **`COMPLETE_PRODUCTION_DATABASE.sql`** ⭐ **USE THIS**
+  - Complete database with all tables and initial data
+  - Ready for production import
+  - Includes: schema + CMS tables + default admin user
+
+- **`production_import.sql`** ❌ DEPRECATED
+  - Old incomplete version
+  - DO NOT USE - Use COMPLETE version instead
+
+### Development Files
+
+- **`schema/`** - Individual table schemas
+  - `brighten_bd_schema.sql` - Core tables
+  - `cms_tables.sql` - CMS/dynamic content tables
+  - `brighten_bd_seed.sql` - Sample data for development
+  - `cms_seed.sql` - CMS sample data
+
+- **`migrations/`** - Schema updates and changes
+  - Used during development for incremental updates
+  - Not needed for fresh production install
+
+---
+
+## 📚 Detailed Guides
+
+For step-by-step instructions, see:
+
+1. **`CPANEL_DEPLOYMENT_GUIDE.md`** (in project root)
+   - Complete manual deployment guide
+   - Perfect for first-time cPanel users
+   - Covers database, backend, and frontend
+
+2. **`QUICK_REFERENCE.md`** (in project root)
+   - Quick commands and checklist
+   - Common issues and solutions
+   - File structure reference
+
+3. **`DATABASE_TROUBLESHOOTING.md`** (in project root)
+   - Database connection errors
+   - Common SQL problems
+   - Recovery procedures
+
+---
+
+## 🗃️ Database Structure Overview
+
+The complete database includes:
+
+### Core Tables (6)
+- `users` - User accounts with full profile fields
+- `blogs` - Blog posts with comments
+- `blog_comments` - Comments on blog posts
+- `magazines` - Magazine/publication management
+- `memberships` - User membership tracking
+- `user_activities` - Activity log
+
+### CMS Tables (17)
+- `events` - Event management
+- `event_registrations` - Event sign-ups
+- `projects` - Project/program tracking
+- `about_page` - Dynamic about page content
+- `system_settings` - Site configuration
+- `hero_sliders` - Homepage carousel
+- `pages` - Dynamic pages
+- `focus_areas` - Service areas
+- `statistics` - Impact counters
+- `testimonials` - User testimonials
+- `team_members` - Team directory
+- `settings` - Key-value settings
+- `menus` - Dynamic navigation
+- `media` - Media library
+- `contact_submissions` - Contact form entries
+- `permissions` - Permission system
+- `role_permissions` - Role-based access
+- `activity_logs` - Audit trail
+
+**Total: 23+ tables**
+
+---
 
 ## Migration Files
 

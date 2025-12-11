@@ -1,3 +1,12 @@
+-- ⚠️ DEPRECATED - DO NOT USE THIS FILE
+-- =====================================================
+-- PLEASE USE: COMPLETE_PRODUCTION_DATABASE.sql INSTEAD
+-- =====================================================
+-- This file is INCOMPLETE and missing many tables.
+-- Use the complete database file located at:
+-- database/COMPLETE_PRODUCTION_DATABASE.sql
+-- =====================================================
+
 -- Brighten Bangladesh Production Import SQL
 -- Single file for production database import
 -- This file combines schema and initial seed data
