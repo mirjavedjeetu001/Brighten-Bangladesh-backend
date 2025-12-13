@@ -41,6 +41,12 @@ export class Blog {
   @Column({ type: 'longtext', nullable: true })
   content: string;
 
+  @Column({ type: 'int', default: 0, name: 'view_count' })
+  viewCount: number;
+
+  @Column({ type: 'int', default: 0, name: 'likes_count' })
+  likesCount: number;
+
   @Column({
     type: 'enum',
     enum: BlogStatus,

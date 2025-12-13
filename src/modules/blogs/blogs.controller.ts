@@ -19,6 +19,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { OptionalJwtAuthGuard } from '../../common/guards/optional-jwt-auth.guard';
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -43,11 +44,12 @@ export class BlogsController {
   }
 
   @Get(':slug')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Get blog by slug' })
   @ApiResponse({ status: 200, description: 'Blog found' })
   @ApiResponse({ status: 404, description: 'Blog not found' })
-  findOne(@Param('slug') slug: string) {
-    return this.blogsService.findOne(slug);
+  findOne(@Param('slug') slug: string, @CurrentUser() user: User) {
+    return this.blogsService.findOne(slug, user);
   }
 
   @Put(':id')
@@ -99,8 +101,25 @@ export class BlogsController {
     return this.blogsService.remove(id, user);
   }
 
+  @Post(':id/view')
+  @ApiOperation({ summary: 'Increment view count (public)' })
+  @ApiResponse({ status: 200, description: 'View count incremented' })
+  incrementView(@Param('id', ParseIntPipe) id: number) {
+    return this.blogsService.incrementView(id);
+  }
+
+  @Post(':id/like')
+  @UseGuards(AuthGuard('jwt'))
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Toggle like for blog (auth required)' })
+  @ApiResponse({ status: 200, description: 'Like toggled' })
+  toggleLike(@Param('id', ParseIntPipe) id: number, @CurrentUser() user: User) {
+    return this.blogsService.toggleLike(id, user);
+  }
+
   // Comment endpoints
   @Post(':id/comments')
+  @UseGuards(OptionalJwtAuthGuard)
   @ApiOperation({ summary: 'Add comment to blog (public or authenticated)' })
   @ApiResponse({ status: 201, description: 'Comment added successfully' })
   async createComment(

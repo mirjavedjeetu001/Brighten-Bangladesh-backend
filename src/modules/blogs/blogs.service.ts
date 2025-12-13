@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
 import { Blog, BlogStatus } from './entities/blog.entity';
 import { BlogComment } from './entities/blog-comment.entity';
+import { BlogLike } from './entities/blog-like.entity';
 import { CreateBlogDto, UpdateBlogDto, QueryBlogsDto } from './dto/blog.dto';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { User, UserRole } from '../users/entities/user.entity';
@@ -16,6 +17,8 @@ export class BlogsService {
     private blogsRepository: Repository<Blog>,
     @InjectRepository(BlogComment)
     private commentsRepository: Repository<BlogComment>,
+    @InjectRepository(BlogLike)
+    private likesRepository: Repository<BlogLike>,
     @InjectRepository(UserActivity)
     private userActivityRepository: Repository<UserActivity>,
   ) {}
@@ -108,7 +111,7 @@ export class BlogsService {
     };
   }
 
-  async findOne(slug: string): Promise<Blog> {
+  async findOne(slug: string, user?: User): Promise<Blog & { likedByMe?: boolean }> {
     const blog = await this.blogsRepository.findOne({
       where: { slug },
       relations: ['author'],
@@ -118,7 +121,54 @@ export class BlogsService {
       throw new NotFoundException('Blog not found');
     }
 
-    return blog;
+    // Ensure counters are current
+    const likes = await this.likesRepository.count({ where: { blog_id: blog.id } });
+    blog.likesCount = likes;
+
+    // Determine if current user liked
+    let likedByMe = false;
+    if (user?.id) {
+      const existing = await this.likesRepository.findOne({ where: { blog_id: blog.id, user_id: user.id } });
+      likedByMe = !!existing;
+    }
+
+    return { ...blog, likedByMe } as Blog & { likedByMe?: boolean };
+  }
+
+  async getCounts(blogId: number): Promise<{ likes: number; views: number }> {
+    const likes = await this.likesRepository.count({ where: { blog_id: blogId } });
+    const blog = await this.blogsRepository.findOne({ where: { id: blogId } });
+    return { likes, views: blog?.viewCount ?? 0 };
+  }
+
+  async incrementView(blogId: number): Promise<{ views: number }> {
+    await this.findById(blogId);
+    await this.blogsRepository.increment({ id: blogId }, 'viewCount', 1);
+    const blog = await this.blogsRepository.findOne({ where: { id: blogId } });
+    return { views: blog?.viewCount ?? 0 };
+  }
+
+  async toggleLike(blogId: number, user: User): Promise<{ liked: boolean; likes: number }> {
+    if (!user) {
+      throw new ForbiddenException('Authentication required to like');
+    }
+
+    await this.findById(blogId);
+
+    const existing = await this.likesRepository.findOne({ where: { blog_id: blogId, user_id: user.id } });
+
+    if (existing) {
+      await this.likesRepository.remove(existing);
+      await this.blogsRepository.decrement({ id: blogId }, 'likesCount', 1);
+      const likes = await this.likesRepository.count({ where: { blog_id: blogId } });
+      return { liked: false, likes };
+    }
+
+    const like = this.likesRepository.create({ blog_id: blogId, user_id: user.id });
+    await this.likesRepository.save(like);
+    await this.blogsRepository.increment({ id: blogId }, 'likesCount', 1);
+    const likes = await this.likesRepository.count({ where: { blog_id: blogId } });
+    return { liked: true, likes };
   }
 
   async findById(id: number): Promise<Blog> {
