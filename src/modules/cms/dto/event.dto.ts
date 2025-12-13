@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt, IsDateString, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, IsDateString, MaxLength, IsEnum } from 'class-validator';
+import { EventStatus } from '../entities/event.entity';
 
 export class CreateEventDto {
   @ApiProperty()
@@ -30,6 +31,16 @@ export class CreateEventDto {
   @ApiProperty()
   @IsDateString()
   event_date: Date;
+
+  @ApiPropertyOptional({ description: 'When registrations open' })
+  @IsOptional()
+  @IsDateString()
+  registration_start?: Date;
+
+  @ApiPropertyOptional({ description: 'Optional cutoff date/time for registrations' })
+  @IsOptional()
+  @IsDateString()
+  registration_deadline?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -68,6 +79,11 @@ export class CreateEventDto {
   @IsOptional()
   @IsInt()
   display_order?: number;
+
+  @ApiPropertyOptional({ enum: EventStatus, default: EventStatus.UPCOMING })
+  @IsOptional()
+  @IsEnum(EventStatus)
+  status?: EventStatus;
 }
 
 export class UpdateEventDto extends CreateEventDto {}

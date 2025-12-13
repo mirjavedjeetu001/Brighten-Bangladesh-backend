@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt, IsUrl, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, MaxLength, ValidateIf, IsArray } from 'class-validator';
 
 export class CreateHeroSliderDto {
   @ApiProperty()
@@ -58,4 +58,10 @@ export class ReorderHeroSliderDto {
   @ApiProperty({ type: [Number] })
   @IsInt({ each: true })
   order: number[];
+
+  @ApiProperty({ type: 'array', items: { type: 'object', properties: { id: { type: 'number' } } }, required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateIf((o) => !o.order)
+  orders?: { id: number; display_order?: number }[];
 }

@@ -31,6 +31,12 @@ export class Event {
   @Column({ type: 'datetime' })
   event_date: Date;
 
+  @Column({ type: 'datetime', nullable: true })
+  registration_start: Date;
+
+  @Column({ type: 'datetime', nullable: true })
+  registration_deadline: Date;
+
   @Column({ nullable: true })
   location: string;
 
@@ -48,6 +54,9 @@ export class Event {
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
+
+  @Column({ type: 'enum', enum: EventStatus, default: EventStatus.UPCOMING })
+  status: EventStatus;
 
   @Column({ type: 'int', default: 0 })
   display_order: number;

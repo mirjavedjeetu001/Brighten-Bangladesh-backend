@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, ParseIntPipe, UseGuards, Patch, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { HeroSliderService } from '../services/hero-slider.service';
@@ -67,7 +67,11 @@ export class HeroSliderController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Reorder hero sliders' })
   @ApiResponse({ status: 200, description: 'Hero sliders reordered' })
-  reorder(@Body() dto: ReorderHeroSliderDto): Promise<void> {
-    return this.heroSliderService.reorder(dto.order);
+  reorder(@Body() dto: ReorderHeroSliderDto & { orders?: { id: number; display_order?: number }[] }): Promise<void> {
+    const order = dto.order ?? dto.orders?.map((item) => item.id) ?? [];
+    if (!order.length) {
+      throw new BadRequestException('order array is required');
+    }
+    return this.heroSliderService.reorder(order);
   }
 }

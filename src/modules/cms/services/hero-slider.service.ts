@@ -50,7 +50,7 @@ export class HeroSliderService {
 
   async reorder(ids: number[]): Promise<void> {
     for (let i = 0; i < ids.length; i++) {
-      await this.heroSliderRepo.update(ids[i], { display_order: i });
+      await this.heroSliderRepo.update(ids[i], { display_order: i + 1 });
     }
   }
 }

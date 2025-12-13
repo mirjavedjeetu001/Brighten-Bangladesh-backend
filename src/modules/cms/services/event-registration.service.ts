@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventRegistration, RegistrationStatus } from '../entities/event-registration.entity';
 import { EventService } from './event.service';
+import { EventStatus } from '../entities/event.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Injectable()
@@ -28,6 +29,19 @@ export class EventRegistrationService {
     const event = await this.eventService.findOne(eventId);
     if (!event.is_active) {
       throw new BadRequestException('This event is not accepting registrations');
+    }
+
+    // Check status and cutoff times
+    if ([EventStatus.CANCELLED, EventStatus.COMPLETED].includes(event.status)) {
+      throw new BadRequestException('Registration is closed for this event');
+    }
+
+    if (event.registration_start && new Date(event.registration_start) > new Date()) {
+      throw new BadRequestException('Registration has not opened yet');
+    }
+
+    if (event.registration_deadline && new Date(event.registration_deadline) < new Date()) {
+      throw new BadRequestException('Registration deadline has passed');
     }
 
     // Check if event date has passed
@@ -122,6 +136,9 @@ export class EventRegistrationService {
     // If approving, check if event is full
     if (status === RegistrationStatus.APPROVED) {
       const event = await this.eventService.findOne(eventId);
+      if ([EventStatus.CANCELLED, EventStatus.COMPLETED].includes(event.status)) {
+        throw new BadRequestException('Cannot approve registrations for closed events');
+      }
       if (event.max_participants) {
         const approvedCount = await this.eventRegistrationRepository.count({
           where: { event_id: eventId, status: RegistrationStatus.APPROVED },
