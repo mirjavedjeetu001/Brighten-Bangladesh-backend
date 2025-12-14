@@ -21,4 +21,13 @@ export default () => ({
     directory: process.env.UPLOAD_DIR || './uploads',
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 5242880, // 5MB
   },
+  smtp: {
+    host: process.env.SMTP_HOST || 'mail.brightenbangladesh.com',
+    port: parseInt(process.env.SMTP_PORT, 10) || 465,
+    secure: process.env.SMTP_SECURE === 'false' ? false : true,
+    user: process.env.SMTP_USER || 'info@brightenbangladesh.com',
+    pass: process.env.SMTP_PASS || '',
+    fromEmail: process.env.SMTP_FROM || 'info@brightenbangladesh.com',
+    fromName: process.env.SMTP_FROM_NAME || 'Brighten Bangladesh',
+  },
 });

@@ -4,12 +4,14 @@ import { Repository } from 'typeorm';
 import { User, UserRole } from './entities/user.entity';
 import { UpdateUserDto, UpdateUserRoleDto } from './dto/update-user.dto';
 import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
+import { MailService } from '../../common/mail/mail.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private mailService: MailService,
   ) {}
 
   async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<User>> {
@@ -72,6 +74,7 @@ export class UsersService {
     }
 
     const user = await this.findOne(id);
+    const wasApproved = user.isApproved;
 
     // Protect admin and super_admin users from being modified by regular admins
     if ((user.role === UserRole.ADMIN || user.role === UserRole.SUPER_ADMIN) && currentUser.role !== UserRole.SUPER_ADMIN) {
@@ -121,7 +124,18 @@ export class UsersService {
       }
     }
 
-    return this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+
+    if (!wasApproved && savedUser.isApproved) {
+      try {
+        await this.mailService.sendApprovalEmail(savedUser.email, savedUser.name);
+      } catch (error) {
+        // Email failures should not block approval; log and continue
+        console.error('Failed to send approval email', error);
+      }
+    }
+
+    return savedUser;
   }
 
   async updateRole(id: number, updateRoleDto: UpdateUserRoleDto, currentUser?: User): Promise<User> {

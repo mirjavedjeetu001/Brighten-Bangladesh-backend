@@ -81,6 +81,21 @@ export class User {
   @Column({ type: 'boolean', default: false, name: 'is_approved' })
   isApproved: boolean;
 
+  @Column({ type: 'boolean', default: false, name: 'is_email_verified' })
+  isEmailVerified: boolean;
+
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'otp_code' })
+  otpCode: string | null;
+
+  @Column({ type: 'datetime', nullable: true, name: 'otp_expires_at' })
+  otpExpiresAt: Date | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'reset_otp_code' })
+  resetOtpCode: string | null;
+
+  @Column({ type: 'datetime', nullable: true, name: 'reset_otp_expires_at' })
+  resetOtpExpiresAt: Date | null;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
