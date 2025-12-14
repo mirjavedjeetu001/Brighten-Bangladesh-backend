@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsNumberString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BlogStatus } from '../entities/blog.entity';
 
@@ -22,6 +22,11 @@ export class CreateBlogDto {
   @IsNotEmpty()
   @IsString()
   content: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumberString()
+  categoryId?: string;
 }
 
 export class UpdateBlogDto {
@@ -49,6 +54,11 @@ export class UpdateBlogDto {
   @IsOptional()
   @IsEnum(BlogStatus)
   status?: BlogStatus;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumberString()
+  categoryId?: string;
 }
 
 export class QueryBlogsDto {
@@ -74,4 +84,9 @@ export class QueryBlogsDto {
   @ApiPropertyOptional({ default: 10 })
   @IsOptional()
   limit?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsNumberString()
+  categoryId?: string;
 }

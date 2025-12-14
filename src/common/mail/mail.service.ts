@@ -88,6 +88,22 @@ export class MailService {
     await this.sendMail({ to, subject, html, text: `Your password reset code is ${code}` });
   }
 
+  async sendBlogApprovedEmail(to: string, name: string | undefined, title: string, link: string) {
+    const subject = 'Your blog has been approved!';
+    const greeting = name ? `Hi ${name},` : 'Hello,';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 640px; margin: 0 auto;">
+        <p>${greeting}</p>
+        <p>Your blog post <strong>${title}</strong> has been approved.</p>
+        <p>You can review it here:</p>
+        <p><a href="${link}" style="color: #0d9488;">${link}</a></p>
+        <p>Thank you for contributing to Brighten Bangladesh!</p>
+      </div>
+    `;
+
+    await this.sendMail({ to, subject, html, text: `Your blog "${title}" is approved. View: ${link}` });
+  }
+
   private getDefaultFrom() {
     const fromName = this.configService.get<string>('smtp.fromName');
     const fromEmail = this.configService.get<string>('smtp.fromEmail') || this.configService.get<string>('smtp.user');

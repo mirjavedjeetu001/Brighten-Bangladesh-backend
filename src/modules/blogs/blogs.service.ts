@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, ForbiddenException, BadRequestException 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
 import { Blog, BlogStatus } from './entities/blog.entity';
+import { BlogCategory } from './entities/blog-category.entity';
 import { BlogComment } from './entities/blog-comment.entity';
 import { BlogLike } from './entities/blog-like.entity';
 import { CreateBlogDto, UpdateBlogDto, QueryBlogsDto } from './dto/blog.dto';
@@ -9,6 +10,7 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { User, UserRole } from '../users/entities/user.entity';
 import { PaginationDto, PaginatedResult } from '../../common/dto/pagination.dto';
 import { UserActivity, ActivityType } from '../memberships/entities/user-activity.entity';
+import { MailService } from '../../common/mail/mail.service';
 
 @Injectable()
 export class BlogsService {
@@ -21,6 +23,9 @@ export class BlogsService {
     private likesRepository: Repository<BlogLike>,
     @InjectRepository(UserActivity)
     private userActivityRepository: Repository<UserActivity>,
+    @InjectRepository(BlogCategory)
+    private categoriesRepository: Repository<BlogCategory>,
+    private mailService: MailService,
   ) {}
 
   private generateSlug(title: string): string {
@@ -62,10 +67,19 @@ export class BlogsService {
 
     const slug = this.generateSlug(createBlogDto.title);
 
+    let category: BlogCategory | null = null;
+    if (createBlogDto.categoryId) {
+      category = await this.categoriesRepository.findOne({ where: { id: Number(createBlogDto.categoryId) } });
+      if (!category || !category.isActive) {
+        throw new BadRequestException('Invalid category');
+      }
+    }
+
     const blog = this.blogsRepository.create({
       ...createBlogDto,
       slug,
       authorId: user.id,
+      categoryId: category?.id,
       status: BlogStatus.DRAFT,
     });
 
@@ -77,7 +91,7 @@ export class BlogsService {
     queryDto: QueryBlogsDto,
   ): Promise<PaginatedResult<Blog>> {
     const { page, limit } = paginationDto;
-    const { search, status, authorId } = queryDto;
+    const { search, status, authorId, categoryId } = queryDto;
     const skip = (page - 1) * limit;
 
     const where: FindOptionsWhere<Blog> = {};
@@ -94,9 +108,13 @@ export class BlogsService {
       where.authorId = parseInt(authorId);
     }
 
+    if (categoryId) {
+      where.categoryId = parseInt(categoryId);
+    }
+
     const [data, total] = await this.blogsRepository.findAndCount({
       where,
-      relations: ['author'],
+      relations: ['author', 'category'],
       skip,
       take: limit,
       order: { createdAt: 'DESC' },
@@ -114,7 +132,7 @@ export class BlogsService {
   async findOne(slug: string, user?: User): Promise<Blog & { likedByMe?: boolean }> {
     const blog = await this.blogsRepository.findOne({
       where: { slug },
-      relations: ['author'],
+      relations: ['author', 'category'],
     });
 
     if (!blog) {
@@ -174,7 +192,7 @@ export class BlogsService {
   async findById(id: number): Promise<Blog> {
     const blog = await this.blogsRepository.findOne({
       where: { id },
-      relations: ['author'],
+      relations: ['author', 'category'],
     });
 
     if (!blog) {
@@ -201,7 +219,15 @@ export class BlogsService {
       blog.slug = this.generateSlug(updateBlogDto.title);
     }
 
-    Object.assign(blog, updateBlogDto);
+    if (updateBlogDto.categoryId) {
+      const category = await this.categoriesRepository.findOne({ where: { id: Number(updateBlogDto.categoryId) } });
+      if (!category || !category.isActive) {
+        throw new BadRequestException('Invalid category');
+      }
+      blog.categoryId = category.id;
+    }
+
+    Object.assign(blog, { ...updateBlogDto, categoryId: blog.categoryId });
     return this.blogsRepository.save(blog);
   }
 
@@ -245,6 +271,13 @@ export class BlogsService {
       meta: { blogId: blog.id, blogTitle: blog.title },
     });
 
+    // Notify author
+    if (blog.author?.email) {
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+      const link = `${frontendUrl.replace(/\/$/, '')}/blogs/${blog.slug}`;
+      await this.mailService.sendBlogApprovedEmail(blog.author.email, blog.author.name, blog.title, link);
+    }
+
     return savedBlog;
   }
 
@@ -279,6 +312,71 @@ export class BlogsService {
     }
 
     await this.blogsRepository.remove(blog);
+  }
+
+  // Categories
+  async listCategories(): Promise<BlogCategory[]> {
+    return this.categoriesRepository.find({ where: { isActive: true }, order: { name: 'ASC' } });
+  }
+
+  async listAllCategoriesAdmin(): Promise<BlogCategory[]> {
+    return this.categoriesRepository.find({ order: { name: 'ASC' } });
+  }
+
+  async createCategory(name: string): Promise<BlogCategory> {
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+      .slice(0, 180);
+
+    const existing = await this.categoriesRepository.findOne({ where: [{ name }, { slug }] });
+    if (existing) {
+      throw new BadRequestException('Category already exists');
+    }
+
+    const category = this.categoriesRepository.create({ name, slug });
+    return this.categoriesRepository.save(category);
+  }
+
+  async updateCategory(id: number, payload: { name?: string; isActive?: boolean }): Promise<BlogCategory> {
+    const category = await this.categoriesRepository.findOne({ where: { id } });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    if (payload.name && payload.name !== category.name) {
+      const slug = payload.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+        .slice(0, 180);
+      const dup = await this.categoriesRepository.findOne({ where: [{ name: payload.name }, { slug }] });
+      if (dup && dup.id !== id) {
+        throw new BadRequestException('Category already exists');
+      }
+      category.name = payload.name;
+      category.slug = slug;
+    }
+
+    if (typeof payload.isActive === 'boolean') {
+      category.isActive = payload.isActive;
+    }
+
+    return this.categoriesRepository.save(category);
+  }
+
+  async deleteCategory(id: number): Promise<void> {
+    const category = await this.categoriesRepository.findOne({ where: { id } });
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+    await this.categoriesRepository.remove(category);
+    await this.blogsRepository.createQueryBuilder()
+      .update(Blog)
+      .set({ categoryId: null })
+      .where('category_id = :id', { id })
+      .execute();
   }
 
   async countApprovedBlogsInDateRange(

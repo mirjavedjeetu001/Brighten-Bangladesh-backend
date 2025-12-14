@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { BlogComment } from './blog-comment.entity';
+import { BlogCategory } from './blog-category.entity';
 
 export enum BlogStatus {
   DRAFT = 'draft',
@@ -47,6 +48,9 @@ export class Blog {
   @Column({ type: 'int', default: 0, name: 'likes_count' })
   likesCount: number;
 
+  @Column({ type: 'bigint', name: 'category_id', nullable: true })
+  categoryId: number;
+
   @Column({
     type: 'enum',
     enum: BlogStatus,
@@ -63,6 +67,10 @@ export class Blog {
   @ManyToOne(() => User, (user) => user.blogs, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'author_id' })
   author: User;
+
+  @ManyToOne(() => BlogCategory, (category) => category.blogs, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'category_id' })
+  category: BlogCategory;
 
   @OneToMany(() => BlogComment, (comment) => comment.blog)
   comments: BlogComment[];
