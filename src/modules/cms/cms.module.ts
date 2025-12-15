@@ -15,10 +15,12 @@ import { Menu } from './entities/menu.entity';
 import { ContactSubmission } from './entities/contact-submission.entity';
 import { EventRegistration } from './entities/event-registration.entity';
 import { AboutPage } from './entities/about-page.entity';
+import { NavigationMenu } from './entities/navigation-menu.entity';
 import { User } from '../users/entities/user.entity';
 
 // Services
 import { HeroSliderService } from './services/hero-slider.service';
+import { NavigationMenuService } from './navigation-menu.service';
 import { PageService } from './services/page.service';
 import { FocusAreaService } from './services/focus-area.service';
 import { StatisticService } from './services/statistic.service';
@@ -41,6 +43,7 @@ import { EventController } from './controllers/event.controller';
 import { ProjectController } from './controllers/project.controller';
 import { AboutPageController } from './controllers/about-page.controller';
 import { TeamMemberController } from './controllers/team-member.controller';
+import { NavigationMenuController } from './navigation-menu.controller';
 
 @Module({
   imports: [
@@ -57,6 +60,7 @@ import { TeamMemberController } from './controllers/team-member.controller';
       Menu,
       ContactSubmission,
       EventRegistration,
+      NavigationMenu,
       AboutPage,
       User,
     ]),
@@ -71,6 +75,7 @@ import { TeamMemberController } from './controllers/team-member.controller';
     EventController,
     ProjectController,
     AboutPageController,
+    NavigationMenuController,
     TeamMemberController,
   ],
   providers: [
@@ -84,6 +89,7 @@ import { TeamMemberController } from './controllers/team-member.controller';
     ProjectService,
     EventRegistrationService,
     AboutPageService,
+    NavigationMenuService,
     TeamMemberService,
   ],
   exports: [
@@ -97,6 +103,7 @@ import { TeamMemberController } from './controllers/team-member.controller';
     ProjectService,
     EventRegistrationService,
     AboutPageService,
+    NavigationMenuService,
     TeamMemberService,
   ],
 })

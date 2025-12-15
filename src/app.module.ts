@@ -12,6 +12,7 @@ import { MembershipsModule } from './modules/memberships/memberships.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { CmsModule } from './modules/cms/cms.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { JobsModule } from './modules/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { SettingsModule } from './modules/settings/settings.module';
     UploadsModule,
     CmsModule,
     SettingsModule,
+    JobsModule,
   ],
 })
 export class AppModule {}
