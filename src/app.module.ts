@@ -13,6 +13,8 @@ import { UploadsModule } from './modules/uploads/uploads.module';
 import { CmsModule } from './modules/cms/cms.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { JobsModule } from './modules/jobs/jobs.module';
+import { CvTemplatesModule } from './modules/cv-templates/cv-templates.module';
+import { UserCvsModule } from './modules/user-cvs/user-cvs.module';
 
 @Module({
   imports: [
@@ -38,6 +40,10 @@ import { JobsModule } from './modules/jobs/jobs.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       serveRoot: '/uploads',
+      serveStaticOptions: {
+        index: false,
+        redirect: false,
+      },
     }),
     AuthModule,
     UsersModule,
@@ -48,6 +54,8 @@ import { JobsModule } from './modules/jobs/jobs.module';
     CmsModule,
     SettingsModule,
     JobsModule,
+    CvTemplatesModule,
+    UserCvsModule,
   ],
 })
 export class AppModule {}

@@ -10,7 +10,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
 @ApiTags('Uploads')
@@ -25,7 +25,9 @@ export class UploadsController {
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: process.env.NODE_ENV === 'production' 
+          ? '/home/brighte1/public_html/uploads'
+          : join(process.cwd(), 'uploads'),
         filename: (req, file, callback) => {
           const uniqueName = `${uuidv4()}${extname(file.originalname)}`;
           callback(null, uniqueName);

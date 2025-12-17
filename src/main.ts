@@ -36,8 +36,11 @@ async function bootstrap() {
     redirect: false,
   });
 
-  // Global prefix
-  app.setGlobalPrefix('api');
+  // Global prefix - Only for local development (cPanel handles /api routing in production)
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (!isProduction) {
+    app.setGlobalPrefix('api');
+  }
 
   // CORS - Enhanced for production
   app.enableCors({

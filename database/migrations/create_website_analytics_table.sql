@@ -1,0 +1,10 @@
+-- Create website analytics table
+CREATE TABLE IF NOT EXISTS website_analytics (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  date DATE NOT NULL UNIQUE,
+  page_views INT DEFAULT 0,
+  unique_visitors INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_date (date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

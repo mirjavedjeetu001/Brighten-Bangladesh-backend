@@ -21,6 +21,9 @@ export default () => ({
     directory: process.env.UPLOAD_DIR || './uploads',
     maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 5242880, // 5MB
   },
+  app: {
+    url: process.env.APP_URL || 'http://localhost:3000',
+  },
   smtp: {
     host: process.env.SMTP_HOST || 'mail.brightenbangladesh.com',
     port: parseInt(process.env.SMTP_PORT, 10) || 465,

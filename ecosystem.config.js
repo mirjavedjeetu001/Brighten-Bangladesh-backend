@@ -9,6 +9,7 @@ module.exports = {
     max_memory_restart: '200M',
     env: {
       NODE_ENV: 'production',
+      APP_URL: 'https://brightenbangladesh.com',
     },
     error_file: './logs/err.log',
     out_file: './logs/out.log',

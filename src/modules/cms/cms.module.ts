@@ -16,6 +16,7 @@ import { ContactSubmission } from './entities/contact-submission.entity';
 import { EventRegistration } from './entities/event-registration.entity';
 import { AboutPage } from './entities/about-page.entity';
 import { NavigationMenu } from './entities/navigation-menu.entity';
+import { WebsiteAnalytics } from './entities/website-analytics.entity';
 import { User } from '../users/entities/user.entity';
 
 // Services
@@ -31,6 +32,7 @@ import { ProjectService } from './services/project.service';
 import { EventRegistrationService } from './services/event-registration.service';
 import { AboutPageService } from './services/about-page.service';
 import { TeamMemberService } from './services/team-member.service';
+import { WebsiteAnalyticsService } from './services/website-analytics.service';
 
 // Controllers
 import { HeroSliderController } from './controllers/hero-slider.controller';
@@ -43,6 +45,7 @@ import { EventController } from './controllers/event.controller';
 import { ProjectController } from './controllers/project.controller';
 import { AboutPageController } from './controllers/about-page.controller';
 import { TeamMemberController } from './controllers/team-member.controller';
+import { WebsiteAnalyticsController, PublicAnalyticsController } from './controllers/website-analytics.controller';
 import { NavigationMenuController } from './navigation-menu.controller';
 
 @Module({
@@ -61,6 +64,7 @@ import { NavigationMenuController } from './navigation-menu.controller';
       ContactSubmission,
       EventRegistration,
       NavigationMenu,
+      WebsiteAnalytics,
       AboutPage,
       User,
     ]),
@@ -76,6 +80,8 @@ import { NavigationMenuController } from './navigation-menu.controller';
     ProjectController,
     AboutPageController,
     NavigationMenuController,
+    WebsiteAnalyticsController,
+    PublicAnalyticsController,
     TeamMemberController,
   ],
   providers: [
@@ -88,6 +94,7 @@ import { NavigationMenuController } from './navigation-menu.controller';
     EventService,
     ProjectService,
     EventRegistrationService,
+    WebsiteAnalyticsService,
     AboutPageService,
     NavigationMenuService,
     TeamMemberService,
@@ -102,6 +109,7 @@ import { NavigationMenuController } from './navigation-menu.controller';
     EventService,
     ProjectService,
     EventRegistrationService,
+    WebsiteAnalyticsService,
     AboutPageService,
     NavigationMenuService,
     TeamMemberService,
